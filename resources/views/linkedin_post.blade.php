@@ -1,4 +1,4 @@
-<form method="POST" action="{{ route('linkedin.post') }}">
+<form method="POST" action="{{ route('linkedin.post.store') }}">
     @csrf
     <textarea name="message" rows="4" cols="50" required></textarea>
     <br>
