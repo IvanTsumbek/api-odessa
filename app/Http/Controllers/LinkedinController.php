@@ -41,12 +41,30 @@ class LinkedinController extends Controller
 
             $responseData = $response->json();
 
-            /** @var \App\Models\User|null $user */
+            $accessToken = $responseData['access_token'] ?? null;
+
+            if (!$accessToken) {
+                return redirect()->route('home')->with('error', 'Access token не получен.');
+            }
+
+            // 🔹 Получаем ID пользователя из LinkedIn
+            $profileResponse = Http::withToken($accessToken)
+                ->get('https://api.linkedin.com/v2/me');
+
+            $profileData = $profileResponse->json();
+            $linkedinId = $profileData['id'] ?? null;
+
+            if (!$linkedinId) {
+                return redirect()->route('home')->with('error', 'Не удалось получить LinkedIn ID.');
+            }
+
+            // 🔹 Сохраняем и токен, и ID
             $user = Auth::user();
             $user->json = json_encode($responseData);
+            $user->linkedin_id = $linkedinId;
             $user->save();
 
-            return redirect()->route('linkedin.post')->with('success', 'LinkedIn токен сохранён!');
+            return redirect()->route('linkedin.post')->with('success', 'Токен и ID сохранены!');
         } catch (\Exception $e) {
             return redirect()->route('home')->with('error', 'Ошибка при обращении к LinkedIn: ' . $e->getMessage());
         }

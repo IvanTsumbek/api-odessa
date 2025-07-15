@@ -11,7 +11,6 @@ class LinkedinPostStoreController extends Controller
     {
         $user = Auth::user();
         $accessToken = $user->json ? json_decode($user->json, true)['access_token'] ?? null : null;
-
         if (!$accessToken) {
             return redirect()->back()->with('error', 'Нет токена LinkedIn для публикации.');
         }
